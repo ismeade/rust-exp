@@ -1,19 +1,17 @@
 use std::fs::File;
-use std::io::ErrorKind;
+use std::io;
+use std::io::{ErrorKind, Read};
 
 fn main() {
     let f = File::open("hello.txt");
 
-    let f = match f {
-        Ok(file) => file,
-        Err(error) => match error.kind() {
-            ErrorKind::NotFound => match File::create("hello.txt") {
-                Ok(fc) => fc,
-                Err(e) => panic!("Problem creating the file: {:?}", e),
-            },
-            other_error => panic!("Problem opening the file: {:?}", other_error),
+    let f = f.unwrap_or_else(|error| match error.kind() {
+        ErrorKind::NotFound => match File::create("hello.txt") {
+            Ok(fc) => fc,
+            Err(e) => panic!("Problem creating the file: {:?}", e),
         },
-    };
+        other_error => panic!("Problem opening the file: {:?}", other_error),
+    });
 
     // 如果不存在会直接panic，使线程崩溃
     let f = File::open("hello.txt").unwrap();
@@ -23,7 +21,7 @@ fn main() {
 
 }
 
-fn read_username_from_file() -> Result<String, io::Error> {
+fn read_username_from_file_1() -> Result<String, io::Error> {
     // 打开文件，f是`Result<文件句柄,io::Error>`
     let f = File::open("hello.txt");
 
@@ -45,7 +43,7 @@ fn read_username_from_file() -> Result<String, io::Error> {
 }
 
 // 如果结果是 Ok(T)，则把 T 赋值给 f，如果结果是 Err(E)，则返回该错误，所以 ? 特别适合用来传播错误
-fn read_username_from_file() -> Result<String, io::Error> {
+fn read_username_from_file_2() -> Result<String, io::Error> {
     let mut f = File::open("hello.txt")?;
     let mut s = String::new();
     f.read_to_string(&mut s)?;
@@ -53,7 +51,7 @@ fn read_username_from_file() -> Result<String, io::Error> {
 }
 
 // ? 还能实现链式调用，File::open 遇到错误就返回，没有错误就将 Ok 中的值取出来用于下一个方法调用
-fn read_username_from_file() -> Result<String, io::Error> {
+fn read_username_from_file_3() -> Result<String, io::Error> {
     let mut s = String::new();
 
     File::open("hello.txt")?.read_to_string(&mut s)?;

@@ -17,6 +17,16 @@ fn main() {
 
 }
 
+/// `handle_connection` handle处理
+///
+/// # Examples
+///
+/// ```
+/// let arg = 5;
+/// let answer = my_crate::add_one(arg);
+///
+/// assert_eq!(6, answer);
+/// ```
 fn handle_connection(mut stream: TcpStream) {
     println!("handle_start");
     let buf_reader = BufReader::new(&mut stream);
